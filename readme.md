@@ -5,6 +5,6 @@ cheatsheets, and other resources for getting up and running on a new unix system
 
 ## install
 ```
-apt update && apt install -y curl unzip
-curl -L https://raw.githubusercontent.com/bgirschig/unix-setup/main/install.sh | bash
+apt -qq update && apt -qq install -y curl unzip
+bash <(curl -sL https://raw.githubusercontent.com/bgirschig/unix-setup/main/install.sh)
 ```
