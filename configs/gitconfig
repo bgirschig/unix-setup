@@ -1,0 +1,17 @@
+[user]
+        name = bastien girschig
+        email = bastien.girschig@gmail.com
+[http]
+        cookiefile = /home/bgirschig/.gitcookies
+[alias]
+        co = checkout
+        ci = commit
+        st = status
+        br = branch
+        unstage = reset HEAD --
+        last = log -1 HEAD
+        tree = log --graph --oneline --all
+        treeFull = log --graph --format=medium --all
+[core]
+        editor = vim +startinsert
+

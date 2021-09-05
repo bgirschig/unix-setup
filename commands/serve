@@ -1,0 +1,70 @@
+#!/usr/bin/env python2
+
+"""
+Simple command for serving static files in current directory, for example:
+
+# serve files in current directory with simple http server:
+serve
+
+# start a php server on port 9923 for files in the 'website' firectory and open the index page when done:
+serve -d ~/Desktop/website -p 9923 --open --php
+"""
+
+import argparse
+from SimpleHTTPServer import SimpleHTTPRequestHandler
+from BaseHTTPServer import HTTPServer
+from SocketServer import TCPServer
+import os
+import webbrowser
+import os
+import subprocess
+
+# open http://localhost:8000 && python -m SimpleHTTPServer
+parser = argparse.ArgumentParser(description='Serve files from a directory')
+parser.add_argument('dir', help='which directory to serve', default="./")
+parser.add_argument('--port', '-p', type=int, help='which port to use for serving. 0 for automatic selection', default=0)
+parser.add_argument('--host', help='which host to use (0.0.0.0, localhost, etc...)', default="localhost")
+parser.add_argument('--open', '-o', help='use this flag to open the served address in the browser', action="store_true")
+parser.add_argument('--php', help='use this flag to serve using php\'s built in webserver', action="store_true")
+args = parser.parse_args()
+
+if args.php:
+  if args.port == 0:
+    print "php server does not handle automatic port finding. You need to choose"
+    print "one by yourself (or fix the 'serve' command yourself)"
+    exit()
+  try:
+    # open the root url in a browser
+    url = "http://{}:{}".format(args.host, args.port)
+    if args.open: webbrowser.open(url)
+    # serve as php
+    subprocess.call(["php",
+      "-S", "{}:{}".format(args.host, args.port),
+      "-c", args.dir,
+      "-t", args.dir])
+  except KeyboardInterrupt:
+    pass
+  exit()
+
+# go to the serving dir
+os.chdir(args.dir)
+
+# create the server
+httpd = HTTPServer((args.host, args.port), SimpleHTTPRequestHandler)
+
+# extract info about the server
+host, port = httpd.socket.getsockname()
+url = "http://{}:{}".format(host, port)
+
+# open the root url in a browser
+if args.open: webbrowser.open(url)
+
+# serve
+try:
+  print "Serving HTTP on {} port {}".format(host, port)
+  print "root: http://{}:{}".format(host, port)
+  httpd.serve_forever()
+except KeyboardInterrupt:
+  print "\rclean exit"
+  httpd.server_close()
+

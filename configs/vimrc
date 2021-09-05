@@ -1,0 +1,30 @@
+filetype plugin on
+
+" Enable syntax highlighting
+syntax on
+" Color theme
+color desert
+
+" Enable cursor wrap from line end to next line start and vice versa
+set whichwrap+=<,>,h,l,[,]
+
+" Enable line numbers
+set number
+
+" Start in insert mode
+startinsert 
+
+" 100 char column marker
+set colorcolumn=100
+
+" Configure the status line
+set laststatus=2 " enable the status line
+
+set statusline= " start with an empty SL
+set statusline+=\ %F " file name
+set statusline+=%= " Align right
+set statusline+=\ %{&fileencoding?&fileencoding:&encoding}
+set statusline+=\[%{&fileformat}\]
+set statusline+=\ %p%% " current line as a percentage of the line count
+set statusline+=\ %l:%c " cursor position (line:column)
+set statusline+=\ 

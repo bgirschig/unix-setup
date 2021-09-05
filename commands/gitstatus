@@ -1,0 +1,197 @@
+#!/usr/bin/env python
+
+# it is sometimes hard to keep track of all the git repos on a computer
+# this tool gives an overview of the git repos in a diractory and their status
+
+import argparse
+import subprocess
+from subprocess import check_output, call
+from os.path import dirname, join
+import os
+import re
+from glob import glob
+import subprocess
+from StringIO import StringIO
+import tempfile
+import sys
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('searches', nargs='*',
+   help='a list of directories to look for', default=["protorepo", "pose_tools"])
+parser.add_argument('--root', help='where to look', default=".")
+parser.add_argument('--skip-fetch', help='use this to skip the fetch part. command will be much faster but repos might not ne up to date with their remotes.', action="store_true")
+args = parser.parse_args()
+
+exclude = set(["node_modules", "env", "logs", "media", "bkp", "learn", "tmp", "lib", ".Trash", ".git"])
+
+def main():
+   root = os.path.abspath(args.root)
+   
+   print "searching for repositories in:", root
+   print "excluded directories:", ", ".join(exclude)
+   print ""
+
+   max_name_width = 0
+   repos = set()
+
+   for root, dirs, files in os.walk(root, topdown=True):
+      if ".git" in dirs:
+         # if there is a git subdirectory, this dir is a repo
+         repos.add(root)
+         # record max name width (useful for logging later)
+         name_width = len(root)
+         if(name_width>max_name_width): max_name_width=name_width
+
+      # remove from subdirectories any one that is in the exclude list,
+      # so that we don't search into them
+      dirs[:] = [d for d in dirs if d not in exclude]
+   
+   print "Found %i repos" % len(repos)
+
+   # convert the set into a list, to be able to assign values
+   repos = list(sorted(repos))
+
+   # loop over all repos, fetch to get the most up to date status, and get status
+   for repo_idx, repo_path in enumerate(repos):
+      print repo_path.ljust(max_name_width),
+      os.chdir(repo_path)
+
+      if not args.skip_fetch: fetch()
+
+      status, ahead, behind = get_status()
+      branch = get_branch()
+
+      if ahead == None and behind == None:
+         print "(branch {}, {})".format(
+            autocolor(branch, expected="master"),
+            c("no remote", "red"))
+      else:
+         print "(branch {}, {} ahead, {} behind)".format(
+            autocolor(branch, expected="master"),
+            autocolor(ahead or 0, expected=0),
+            autocolor(behind or 0, expected=0))
+
+      repos[repo_idx] = {
+         "path": repo_path,
+         "branch": branch,
+         "status": status,
+         "ahead": ahead,
+         "behind": behind,
+         "ok": (ahead==0 and behind==0)
+      }
+   print ""
+
+   # a list of directories that might need an action
+   needAction = [repo for repo in repos if not repo["ok"]]
+
+   if(len(needAction)==0):
+      print c("All repos in ["+args.root+"] are up to date with their master remote", "green")
+   else:
+      print c("Some directories are not up to date.", "magenta")
+      print c('Would you like to go though each to perform some actions?', "magenta")
+      ans = getAction({"y":"yes","n":"no"}, default="yes")
+      if ans == "yes":
+         for repo_idx, repo in enumerate(needAction):
+            print ""
+            print "[{}/{}] {}".format(repo_idx+1, len(needAction), c(repo["path"], "yellow"))
+            os.chdir(repo["path"])
+            
+            print c(repo["status"], "cyan")
+            
+            ans = getAction({"s":"skip", "b":"run bash", "q":"quit", "p":"pull", "u":"push"}, default="skip")
+            if ans == "skip":
+               continue
+            elif ans == "quit":
+               break
+            elif ans == "run bash":
+               run_sub_bash()
+            elif ans == "pull":
+               call(["git", "pull"])
+            elif ans == "push":
+               call(["git", "pull"])
+
+   print c("Done\n", "green")
+
+def getAction(args={}, default=None):
+   manual = []
+   argset = set([])
+
+   for key in args:
+      key_str = key.upper() if args[key]==default else key
+      manual.append("{}({})".format(args[key], key_str))
+
+   ans = raw_input(", ".join(manual)+": ").lower()
+   if ans in args:
+      return args[ans]
+   elif len(ans)==0 and default != None:
+      return default
+   else:
+      print c("unexpected command:", "red"), ans
+      return getAction(args)
+
+def get_branch():
+   return check_output("git rev-parse --abbrev-ref HEAD".split(" ")).strip()
+
+def fetch():
+   try:
+      check_output("git fetch".split(" "), stderr=subprocess.STDOUT)
+   except Exception as e:
+      pass
+
+def get_status():
+   try:
+      status = check_output("git status".split(" "), stderr=subprocess.STDOUT).strip()
+      
+      if "Your branch is up to date with" in status:
+         ahead = 0
+         behind = 0
+      elif "have diverged" in status:
+         ahead = -1
+         behind = -1
+      else:
+         regex = r".*Your branch is ahead of \'.*\/.*\' by (\d+) commits?\."
+         ahead = re.findall(regex, status)
+         ahead = int(ahead[0]) if len(ahead) > 0 else None
+      
+         regex = r"Your branch is behind \'.*\/.*\' by (\d+) commits?\."
+         behind = re.findall(regex, status)
+         behind = int(behind[0]) if len(behind) > 0 else None
+
+   except Exception as e:
+      ahead = -1
+      behind = -1
+      status = e
+      pass
+   return status, ahead, behind
+
+def autocolor(value, expected, badColor="red", goodColor="green"):
+   if expected==True or value == expected:
+      return c(value, goodColor)
+   else:
+      return c(value, badColor)
+
+def run_sub_bash():
+   rc_file = join(dirname(__file__), "git_tracker_rc.sh")
+   cmd = "bash --rcfile "+rc_file
+   process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+   for c in iter(lambda: process.stdout.read(1), ''):
+      sys.stdout.write(c)
+
+colors = {
+   "red":'\033[91m',
+   "green":'\033[92m',
+   "blue":'\033[94m',
+   "cyan":'\033[96m',
+   "white":'\033[97m',
+   "yellow":'\033[93m',
+   "magenta":'\033[95m',
+   "grey":'\033[90m',
+   "black":'\033[90m',
+   "default":'\033[0m',   
+}
+
+def c(text,color):
+   return colors[color.lower()]+str(text)+colors["default"]
+
+main()
+

@@ -1,0 +1,10 @@
+#!/bin/bash
+# Convert to mp4, with sensible default settings. Requires ffmpeg
+
+name=${1%.*}
+
+# keep resolution
+# ffmpeg -i "${1}" -pix_fmt yuv420p -vcodec libx265 -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" -r 30 "${name}_converted.mp4"
+
+# reduce resolution
+ffmpeg -i "${1}" -pix_fmt yuv420p -vcodec libx265 -vf "scale='min(720,iw)':-2" "${name}_converted.mp4"

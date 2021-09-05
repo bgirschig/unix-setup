@@ -1,0 +1,38 @@
+#!/bin/bash
+
+############ edit this file ############
+# edit this file
+alias editaliases="vim ~/.bashrc"
+# reload this file
+alias reloadaliases="source ~/.bashrc"
+
+############ virtual env ############
+# create and activate a virtualenv
+alias makeenv="python3 -m venv env && activateenv"
+alias makeenv2.7="virtualenv --python=/usr/bin/python2.7 env && activateenv"
+alias makeenv3.6="python3.6 -m venv env && activateenv"
+alias deleteenv="deactivate > /dev/null 2>&1; rm -rf env/"
+
+# activate the virtualenv in the current directory
+alias activateenv="source env/bin/activate"
+
+############ tools ############
+alias lh="ls -lah"
+
+############ custom prompt ############
+alias hidepath="export PS1='> '"
+alias showpath="export PS1='\[\033[01;34m\]\w\[\033[00m\] > '"
+
+############ remote directories
+alias mount-bg="sshfs u68883171@home415082389.1and1-data.host:/shared-dir /home/bgirschig/bg-remote/"
+alias ssh-bg="ssh u68883171@home415082389.1and1-data.host"
+
+############ various
+alias open="xdg-open"
+
+############ gcloud
+export CLOUDSDK_PYTHON=python3
+
+# direnv: loads .envrc files
+eval "$(direnv hook bash)"
+export EDITOR="subl --wait"

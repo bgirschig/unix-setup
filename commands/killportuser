@@ -1,0 +1,27 @@
+#!/bin/bash
+# Finds and kills the process using the given port
+
+# read parameters and set defaults
+PORT=${1:-80}
+
+PID=$(lsof -i :$PORT | \
+  # get the PID of the processes using the port
+  awk '/LISTEN/ {print $2}' | \
+  # remove duplicates
+  awk '!x[$0]++'
+)
+
+# Handle the case where the port is not in use
+if [ -z "$PID" ]; then echo "Could not find a process using port $PORT"; exit; fi
+
+# Find out what command opened the port
+command=$(ps -p $PID -o comm=)
+
+# Confirm before killing
+printf "This will kill the following command:\n  $command\n"
+read -p "Continue (y/N)?" CONTINUE
+if [ ! "$CONTINUE" = "y" ]; then echo "cancelling"; exit; fi
+
+# Do the actual killing
+echo "killing PID: $PID"
+kill -9 $PID

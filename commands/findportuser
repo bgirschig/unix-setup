@@ -1,0 +1,12 @@
+#!/bin/bash
+# Finds and returns the process currently listening a specific port
+
+input=${1:-80}
+echo "=============== PID of Processes using port $input =================="
+lsof -i :$input | \
+  # get the PID of the processes using the port
+  awk '/LISTEN/ {print $2}' | \
+  # remove duplicates
+  awk '!x[$0]++'
+echo "====================================================================="
+
