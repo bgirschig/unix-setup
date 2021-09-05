@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-################## config ##########################################################################
-PHP_VERSION=7.4
 
 ################## utils ###########################################################################
 export DEBIAN_FRONTEND=noninteractive
@@ -24,9 +22,6 @@ rm -rf /tmp/unix-setup
 ################## UI (Let user select what to install) ############################################
 read -p "Install git ? y/n: " installGit
 read -p "Install apache ? y/n: " installApache
-if [[ "$installApache" == "y" ]]; then
-	read -p "  install php ? y/n: " installPhp
-fi
 read -p "Install admin and dev tools vim,htop,etc.. ? y/n: " installTools
 
 ################## Actual setup ####################################################################
@@ -54,15 +49,6 @@ fi
 if [[ "$installApache" == "y" ]]; then
 	echo "  installing apache" 
 	apt -qq -y install apache2
-	echo "  done"
-fi
-
-if [[ "$installPhp" == "y" ]]; then
-	echo "  installing php$PHP" 
-	apt -qq -y install \
-		php \
-		php-mbstring \
-		php-curl
 	echo "  done"
 fi
 
