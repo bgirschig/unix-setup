@@ -1,10 +1,26 @@
 #!/usr/bin/env bash
-root=$(dirname "$0")
 
+################## config ##########################################################################
 PHP_VERSION=7.3
 
-export DEBIAN_FRONTEND=noninteractive
+################## donwload ########################################################################
+# Download the latest version of unix-setup
+curl -L https://github.com/bgirschig/unix-setup/archive/refs/heads/main.zip --output /tmp/unix-setup.zip
 
+# extract to home directory
+unzip /tmp/unix-setup.zip -d /tmp/unix-setup/
+mv /tmp/unix-setup/unix-setup-main/* ~/unix-setup
+
+# cleanup
+rm /tmp/unix-setup.zip
+rm -rf /tmp/unix-setup
+
+
+################## utils ###########################################################################
+export DEBIAN_FRONTEND=noninteractive
+root=~/unix-setup
+
+################## UI (Let user select what to install) ############################################
 read -p "Install git ? y/n: " installGit
 read -p "Install apache ? y/n: " installApache
 if [[ "$installApache" == "y" ]]; then
@@ -12,7 +28,8 @@ if [[ "$installApache" == "y" ]]; then
 fi
 read -p "Install admin and dev tools vim,htop,etc.. ? y/n: " installTools
 
-echo "updating package list and system"
+################## Actual setup ####################################################################
+
 # update package list & update the installed packages
 apt update
 apt upgrade
