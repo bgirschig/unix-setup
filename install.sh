@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ################## config ##########################################################################
-PHP_VERSION=7.3
+PHP_VERSION=7.4
 
 ################## utils ###########################################################################
 export DEBIAN_FRONTEND=noninteractive
@@ -25,7 +25,7 @@ rm -rf /tmp/unix-setup
 read -p "Install git ? y/n: " installGit
 read -p "Install apache ? y/n: " installApache
 if [[ "$installApache" == "y" ]]; then
-	read -p "  install php$PHP_VERSION? y/n: " installPhp
+	read -p "  install php ? y/n: " installPhp
 fi
 read -p "Install admin and dev tools vim,htop,etc.. ? y/n: " installTools
 
@@ -60,9 +60,9 @@ fi
 if [[ "$installPhp" == "y" ]]; then
 	echo "  installing php$PHP" 
 	apt -qq -y install \
-		php$PHP_VERSION \
-		php$PHP_VERSION-mbstring \
-		php$PHP_VERSION-curl \
+		php \
+		php-mbstring \
+		php-curl \
 	echo "  done"
 fi
 
