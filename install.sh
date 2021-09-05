@@ -47,19 +47,19 @@ cp $root/configs/gitconfig ~/.gitconfig
 
 if [[ "$installGit" == "y" ]]; then
 	echo "  installing git"    
-	apt -qq install -y git-all
+	apt -qq -y install git-all
 	echo "  done"
 fi
 
 if [[ "$installApache" == "y" ]]; then
 	echo "  installing apache" 
-	apt -qq install -y apache2
-	echo "  done. To enable/disable a site, use the a2ensite/a2dissite command"
+	apt -qq -y install apache2
+	echo "  done"
 fi
 
 if [[ "$installPhp" == "y" ]]; then
 	echo "  installing php$PHP" 
-	apt -qq install -y \
+	apt -qq -y install \
 		php$PHP_VERSION \
 		php$PHP_VERSION-mbstring \
 		php$PHP_VERSION-curl \
@@ -68,17 +68,6 @@ fi
 
 if [[ "$installTools" == "y" ]]; then
 	echo "  installing various admin and dev tools" 
-	apt -qq install -qy \
-		vim \
-		htop \
-		lsof \
-		byobu \
-		systemd \
-		lnav \
-		direnv \
-		curl
-	pip install \
-		pillow \
-		pyplot
+	apt -qq -y install vim htop lsof byobu systemd lnav direnv curl
 	echo "  done"
 fi
