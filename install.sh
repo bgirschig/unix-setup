@@ -62,7 +62,7 @@ if [[ "$installPhp" == "y" ]]; then
 	apt -qq -y install \
 		php \
 		php-mbstring \
-		php-curl \
+		php-curl
 	echo "  done"
 fi
 
