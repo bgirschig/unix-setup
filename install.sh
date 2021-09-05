@@ -13,6 +13,7 @@ set -e
 curl -sL https://github.com/bgirschig/unix-setup/archive/refs/heads/main.zip --output /tmp/unix-setup.zip
 
 # extract to home directory
+apt -qq install unzip
 unzip -q /tmp/unix-setup.zip -d /tmp/unix-setup/
 mkdir -p ~/unix-setup && mv /tmp/unix-setup/unix-setup-main/* ~/unix-setup
 
