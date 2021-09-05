@@ -9,7 +9,7 @@ curl -L https://github.com/bgirschig/unix-setup/archive/refs/heads/main.zip --ou
 
 # extract to home directory
 unzip /tmp/unix-setup.zip -d /tmp/unix-setup/
-mv /tmp/unix-setup/unix-setup-main/* ~/unix-setup
+mkdir ~/unix-setup && mv /tmp/unix-setup/unix-setup-main/* ~/unix-setup
 
 # cleanup
 rm /tmp/unix-setup.zip
