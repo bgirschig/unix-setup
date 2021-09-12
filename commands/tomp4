@@ -3,8 +3,12 @@
 
 name=${1%.*}
 
-# keep resolution
-# ffmpeg -i "${1}" -pix_fmt yuv420p -vcodec libx265 -vf "pad=ceil(iw/2)*2:ceil(ih/2)*2" -r 30 "${name}_converted.mp4"
-
-# reduce resolution
-ffmpeg -i "${1}" -pix_fmt yuv420p -vcodec libx265 -vf "scale='min(720,iw)':-2" "${name}_converted.mp4"
+ffmpeg -i "${1}" \
+  -pix_fmt yuv420p \
+  -vcodec libx265 \
+  -crf 28 \
+  -tag:v hvc1 \
+  -profile:v main \
+  -movflags +faststart \
+  "${name}_converted.mp4"
+  # -vf "scale='min(720,iw)':-2" \
