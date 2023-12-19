@@ -26,18 +26,21 @@ read -p "Install admin and dev tools vim,htop,etc.. ? y/n: " installTools
 
 ################## Actual setup ####################################################################
 
+echo "
+# include .bashrc_bgirschig if it exists                                                            
+if [ -f "\$HOME/.bashrc_bgirschig" ]; then                                                           
+. "\$HOME/.bashrc_bgirschig"                                                                         
+fi
+" >> .bashrc
+
 # update package list & update the installed packages
 apt -qq update
 apt -qq upgrade
 
-# install custom commands
-echo "  setting up custom commands"
-cp $root/commands/* /usr/local/bin
-
 # Put config files in their place
 echo "  setting up config files"
 cp $root/configs/vimrc ~/.vimrc
-cp $root/configs/bashrc ~/.bashrc
+cp $root/configs/bashrc ~/.bashrc_custom
 cp $root/configs/gitconfig ~/.gitconfig
 
 if [[ "$installGit" == "y" ]]; then

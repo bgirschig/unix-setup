@@ -14,4 +14,7 @@
         treeFull = log --graph --format=medium --all
 [core]
         editor = vim +startinsert
-
+[init]
+	defaultBranch = main
+[push]
+	autoSetupRemote = true
